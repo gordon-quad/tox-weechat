@@ -524,6 +524,19 @@ twc_group_peer_name_callback(Tox *tox, uint32_t group_number,
 
     struct t_weelist_item *n;
 
+    // workaround for tox issue 
+    // https://github.com/TokTok/c-toxcore/issues/865
+    // setting our own nick generate nick change event that fixes 
+    // other nicks
+    if (pname_len == 0)
+    {
+       TOX_ERR_SET_INFO err;
+        char *myname = twc_get_self_name_nt(profile->tox);
+        tox_self_set_name(profile->tox, (uint8_t *)myname, strlen(myname), &err);
+        free(myname);
+        return;
+    }
+
     npeers = tox_conference_peer_count(profile->tox, group_number, &err);
 
     if (err == TOX_ERR_CONFERENCE_PEER_QUERY_OK)
