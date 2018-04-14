@@ -42,9 +42,16 @@ int
 twc_group_chat_invite_add(struct t_twc_profile *profile, int32_t friend_number,
                           uint8_t group_chat_type, uint8_t *data, size_t size)
 {
+    struct t_twc_group_chat_invite *invite;
+    int i;
+    // Check if we already have such invite to keep tox from crashing
+    for(i = 0; (invite = twc_group_chat_invite_with_index(profile, i)); i++)
+        if ((size == invite->data_size) &&
+            (memcmp(data, invite->data, size) == 0))
+            return -2;
+
     /* create a new invite object */
-    struct t_twc_group_chat_invite *invite =
-        malloc(sizeof(struct t_twc_group_chat_invite));
+    invite = malloc(sizeof(struct t_twc_group_chat_invite));
     if (!invite)
         return -1;
 
